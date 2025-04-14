@@ -1,0 +1,147 @@
+begin: data;
+        problem: initial value;
+end: data;
+
+begin: initial value;
+        derivatives coefficient: auto;
+        initial time: 0.;
+        final time: 10;
+        time step: 1.e-2;
+        tolerance: 1.e-5;
+        max iterations: 10;
+
+        /*realtime: posix,
+                mode, period, time step, 10e6,
+                #allow nonroot,
+                cpu map, 255,   # max value
+                # output, yes;
+                output, no;*/
+
+        method:  implicit euler;
+
+        nonlinear solver: line search;
+
+        # use naive solver with 12 threads
+        linear solver: klu, dir, colamd, mt, 12;
+        #output: none;
+
+end: initial value;
+
+begin: control data;
+        skip initial joint assembly;
+        #default output: none;
+        use automatic differentiation;
+        structural nodes: 1;
+        #joints:           4;
+        #file drivers: 1;
+        loadable elements: 1;
+end: control data;
+module load: "libmodule-shm";
+
+reference: 0,
+reference, global, null,
+reference, global, eye,
+reference, global, null,
+reference, global, null;
+
+reference: 1,
+reference, global, 1, 0, 0,
+reference, global, eye,
+reference, global, null,
+reference, global, null;
+
+reference: 2,
+reference, global, 2, 0, 0,
+reference, global, eye,
+reference, global, null,
+reference, global, null;
+
+reference: 3,
+reference, global, 3, 0, 0,
+reference, global, eye,
+reference, global, null,
+reference, global, null;
+
+
+begin: nodes;
+        structural: 0, dynamic,
+        reference, 0, null,
+        reference, 0, eye,
+        reference, 0, null,
+        reference, 0, null;
+
+/*        structural: 1, dynamic,
+        reference, 1, null,
+        reference, 1, eye,
+        reference, 1, null,
+        reference, 1, null;
+
+        structural: 2, dynamic,
+        reference, 2, null,
+        reference, 2, eye,
+        reference, 2, null,
+        reference, 2, null;
+
+        structural: 3, dynamic,
+        reference, 3, null,
+        reference, 3, eye,
+        reference, 3, null,
+        reference, 3, null;
+*/
+end: nodes;
+/*
+begin: drivers;
+        file: 10,
+        shared memory,
+        3,    # columns number
+        0,    # initial time
+        0.01, # time step
+        "to_mbdyn";
+end: drivers;
+*/
+begin: elements;
+  /*      joint: 0, clamp, 0, node, node;
+
+        joint: 1, total joint,
+                0,
+                position, reference, 1, null,
+                rotation orientation, reference, 1, eye,
+                1,
+                position, reference, 1, null,
+                rotation orientation, reference, 1, eye,
+                position constraint, active, active, active, null,
+                orientation constraint, active, active, active,
+                single, 0., 0., 1., file, 10, 1;
+
+        joint: 2, total joint,
+                1,
+                position, reference, 2, null,
+                rotation orientation, reference, 2, eye,
+                2,
+                position, reference, 2, null,
+                rotation orientation, reference, 2, eye,
+                position constraint, active, active, active, null,
+                orientation constraint, active, active, active,
+                single, 0., 0., 1., file, 10, 2;
+
+        joint: 3, total joint,
+                2,
+                position, reference, 3, null,
+                rotation orientation, reference, 3, eye,
+                3,
+                position, reference, 3, null,
+                rotation orientation, reference, 3, eye,
+                position constraint, active, active, active, null,
+                orientation constraint, active, active, active,
+                single, 0., 0., 1., file, 10, 3;
+
+        user defined: 1000,     # - element name
+                shm_out,        # - element type
+                "from_mbdyn",          # - shared memory name
+                3,              # - output num
+                   1, "rz",     # - element label, "private data name"
+                   2, "rz",
+                   3, "rz";
+*/
+        user defined: 15, verbose;
+end: elements;

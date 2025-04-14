@@ -1,11 +1,14 @@
-FROM ubuntu:20.04
+FROM osrf/ros:noetic-desktop-focal
 
 RUN ln -fs /usr/share/zoneinfo/Europe/Moscow /etc/localtime && \
   echo "Europe/Moscow" > /etc/timezone 
 
 ENV PATH="/usr/local/mbdyn/bin:${PATH}"
+# ENV LD_LIBRARY_PATH="/usr/local/mbdyn/:/usr/local/mbdyn:libexec:/usr/local/mbdyn/bin:/usr/local/mbdyn/include:${LD_LIBRARY_PATH}"
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ca-certificates \
+  vim \
+  tree \
   git \
   libltdl-dev \
   liblapack-dev \ 
@@ -40,12 +43,12 @@ RUN update-ca-certificates
 
 # install MBDyn 
 RUN echo "=================> DOWNLOAD MBDYN <================="
-RUN git clone https://public.gitlab.polimi.it/DAER/mbdyn.git /home/mbdyn 
+RUN git clone https://public.gitlab.polimi.it/DAER/mbdyn.git /custom_dir/mbdyn 
 
 RUN echo "=================> DOWNLOAD MODULE <================"
-RUN git clone https://github.com/bkKpoko/docker-mbdyn-ros.git /home/mbdyn/modules/module-shm 
+RUN git clone https://github.com/bkKpoko/module-shm.git /custom_dir/mbdyn/modules/module-shm 
 
-WORKDIR /home/mbdyn
+WORKDIR /custom_dir/mbdyn
 RUN echo "====================> BOOTSTRAP <==================="
 RUN sh bootstrap.sh
 RUN echo "====================> CONFIGURE <==================="
@@ -55,13 +58,13 @@ CPPFLAGS="-I/usr/include/mkl -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/
 LDFLAGS="-L/usr/lib/x86_64-linux-gnu/hdf5/openmpi" \
 --with-arpack --with-umfpack --with-klu --with-arpack --with-lapack --without-metis --with-mpi --with-trilinos --with-pardiso --with-suitesparseqr --with-qrupdate --enable-multithread --with-threads --with-rt \
 --enable-runtime-loading --with-module="shm"
-
-RUN echo "====================> MAKE -j20 <==================="
-RUN make -j20
-
-RUN echo "=====================> INSTALL <===================="
-RUN make install
-
-
+#
+# RUN echo "====================> MAKE -j20 <==================="
+# RUN make -j20
+#
+# RUN echo "=====================> INSTALL <===================="
+# RUN make install
+#
+# RUN export LT_SYS_LIBRARY_PATH="/usr/local/mbdyn/libexec:$LT_SYS_LIBRARY_PATH"
 
 CMD ["bash"]
